@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="/">
+	
+	<select id="selectAllCustomer" parameterType="com.cn.helper.CustomerPage" resultType="com.cn.domain.Customer">
+		select * from customer
+		<where>
+			<if test="name != null and  name.length()>0">
+				 cname LIKE CONCAT('%',#{name},'%')
+			</if>
+			<if test="code != null and code.length()>0">
+				 and ccode=#{code}
+			</if>
+		</where>
+		limit #{page},#{limit}
+	</select>
+	
+	<select id="findCustomerById"  parameterType="string" resultType="com.cn.domain.Customer">
+		select * from customer
+		<where>
+			<if test ="_parameter!= null">
+				cid=#{_parameter}
+			</if>
+		</where>
+	</select>
+	
+	<select id="countCustomer" parameterType="com.cn.domain.Customer" resultType="Integer">
+		select count(*) from customer
+		<where>
+			<if test="cname != null and  cname.length()>0">
+				 cname LIKE CONCAT('%',#{cname},'%')
+			</if>
+			<if test="ccode != null and ccode.length()>0">
+				 and ccode=#{ccode}
+			</if>
+		</where>
+	</select>
+	
+	<insert id="addCustomer" parameterType="com.cn.domain.Customer">
+		insert into customer(ccode,cname,address,ctelephone,cemail) values("${ccode}","${cname}","${address}","${ctelephone}","${cemail}")
+	</insert>
+	
+	<update id="updateCustomer" parameterType="com.cn.domain.Customer">
+		update customer
+		<set>
+			<if test="ccode != null">ccode=#{ccode},</if>
+			<if test="cname != null">cname=#{cname},</if>
+			<if test="address != null">address=#{address},</if>
+			<if test="ctelephone != null">ctelephone=#{ctelephone},</if>
+			<if test="cemail != null">cemail=#{cemail}</if>
+		</set>
+		<where>
+			<if test ="cid!= null">
+				cid=#{cid}
+			</if>
+		</where>
+	</update>
+	
+	<delete id="deleteCustomer" parameterType="string">
+		delete from customer
+		<where>
+			<if test ="_parameter!= null">
+				cid=#{_parameter}
+			</if>
+		</where>
+	</delete>
+	
+	
+</mapper>

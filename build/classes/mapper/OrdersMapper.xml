@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="/">
+	
+	<select id="selectAllOrders" parameterType="com.cn.helper.OrdersPage" resultMap="ResultOrders">
+		select 
+		orders.oid,
+		orders.ocode,
+		orders.merchandisenumber,
+		orders.orderdata,
+		orders.customerid,
+		orders.merchandiseid,
+		orders.employeeid,
+		employee.ename,
+		customer.cname,
+		merchandise.mname
+		from ((orders INNER JOIN employee ON 
+		orders.employeeid = employee.eid) INNER JOIN  customer ON
+		orders.customerid = customer.cid ) INNER JOIN  merchandise ON
+		orders.merchandiseid = merchandise.mid 
+		
+		<where>
+			<if test="name != null and  name.length()>0">
+				customer.cname LIKE CONCAT('%',#{name},'%')
+			</if>
+			<if test="code != null and code.length()>0">
+				 and ocode=#{code}
+			</if>
+		</where>
+	</select>
+	
+	<resultMap type="com.cn.domain.Orders" id="ResultOrders">
+		<id property="oid" column="oid"></id>
+		<result property="ocode" column="ocode"></result>
+		<result property="merchandisenumber" column="merchandisenumber"></result>
+		<result property="orderdata" column="orderdata"></result>
+		<association property="employee" javaType="com.cn.domain.Employee">
+			<id property="eid" column="employeeid"></id>
+			<result property="ename" column="ename"></result>
+		</association>
+		<association property="customer" javaType="com.cn.domain.Customer">
+			<id property="cid" column="customerid"></id>
+			<result property="cname" column="cname"></result>
+		</association>
+		<association property="merchandise" javaType="com.cn.domain.Merchandise">
+			<id property="mid" column="merchandiseid"></id>
+			<result property="mname" column="mname"></result>
+		</association>
+	</resultMap>
+
+
+	<select id="countOrders" parameterType="com.cn.helper.OrdersHelper" resultType="Integer">
+		select 
+			count(*)
+		from ((orders INNER JOIN employee ON 
+		orders.employeeid = employee.eid) INNER JOIN  customer ON
+		orders.customerid = customer.cid ) INNER JOIN  merchandise ON
+		orders.merchandiseid = merchandise.mid
+		<where>
+			<if test="name != null and  name.length()>0">
+				customer.cname LIKE CONCAT('%',#{name},'%')
+			</if>
+			<if test="code != null and code.length()>0">
+				 and ocode=#{code}
+			</if>
+		</where>
+	</select>
+	
+	<insert id="addOrders" parameterType="com.cn.VO.InsertIntoOrders">
+		insert into orders(ocode,merchandisenumber,orderdata,customerid,merchandiseid,employeeid) 
+		values("${ocode}","${merchandisenumber}","${orderdata}","${customerid}","${merchandiseid}","${employeeid}")
+	</insert>
+	
+	
+	<select id="findOrdersByCode"  parameterType="string" resultMap="ResultOrders">
+		select 
+		orders.oid,
+		orders.ocode,
+		orders.merchandisenumber,
+		orders.orderdata,
+		orders.customerid,
+		orders.merchandiseid,
+		orders.employeeid,
+		employee.ename,
+		customer.cname,
+		merchandise.mname
+		from ((orders INNER JOIN employee ON 
+		orders.employeeid = employee.eid) INNER JOIN  customer ON
+		orders.customerid = customer.cid ) INNER JOIN  merchandise ON
+		orders.merchandiseid = merchandise.mid 
+		<where>
+			<if test ="_parameter!= null">
+				ocode=#{_parameter}
+			</if>
+		</where>
+	</select>
+	
+	<update id="updateOrders" parameterType="com.cn.VO.InsertIntoOrders">
+		update orders
+		<set>
+			<if test="ocode != null">ocode=#{ocode},</if>
+			<if test="merchandisenumber != null">merchandisenumber=#{merchandisenumber},</if>
+			<if test="orderdata != null">orderdata=#{orderdata},</if>
+			<if test="customerid != null">customerid=#{customerid},</if>
+			<if test="merchandiseid != null">merchandiseid=#{merchandiseid},</if>
+			<if test="employeeid != null">employeeid=#{employeeid}</if>
+		</set>
+		<where>
+			<if test ="oid!= null">
+				oid=#{oid}
+			</if>
+		</where>
+	</update>
+	
+	<delete id="deleteOrders" parameterType="string">
+		delete from orders 
+		<where>
+			<if test ="_parameter!= null">
+				ocode=#{_parameter}
+			</if>
+		</where>
+	</delete>
+	
+</mapper>

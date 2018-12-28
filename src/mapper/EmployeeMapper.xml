@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="/">
+	
+	<select id="selectAllEmployee" parameterType="com.cn.helper.EmployeePage" resultType="com.cn.domain.Employee">
+		select * from employee
+		<where>
+			<if test="name != null and name.length()>0">
+				 ename LIKE CONCAT('%',#{name},'%')
+			</if>
+			<if test="code != null and code.length()>0">
+				 and ecode=#{code}
+			</if>
+		</where>
+		limit #{page},#{limit}
+	</select>
+	
+	<select id="findEmployeeById"  parameterType="string" resultType="com.cn.domain.Employee">
+		select * from employee
+		<where>
+			<if test ="_parameter!= null">
+				eid=#{_parameter}
+			</if>
+		</where>
+	</select>
+	
+	<select id="countEmployee" parameterType="com.cn.domain.Employee" resultType="Integer">
+		select count(*) from employee
+		<where>
+			<if test="ename != null and  ename.length()>0">
+				 ename LIKE CONCAT('%',#{ename},'%')
+			</if>
+			<if test="ecode != null and ecode.length()>0">
+				 and ecode=#{ecode}
+			</if>
+		</where>
+	</select>
+	
+	<insert id="addEmployee" parameterType="com.cn.domain.Employee">
+		insert into employee(ecode,ename,birthday,sex,etelephone,eemail) values("${ecode}","${ename}","${birthday}","${sex}","${etelephone}","${eemail}")
+	</insert>
+	
+	<update id="updateEmployee" parameterType="com.cn.domain.Employee">
+		update employee
+		<set>
+			<if test="ecode != null">ecode=#{ecode},</if>
+			<if test="ename != null">ename=#{ename},</if>
+			<if test="birthday != null">birthday=#{birthday},</if>
+			<if test="sex != null">sex=#{sex},</if>
+			<if test="etelephone != null">etelephone=#{etelephone},</if>
+			<if test="eemail != null">eemail=#{eemail}</if>
+		</set>
+		<where>
+			<if test ="eid!= null">
+				eid=#{eid}
+			</if>
+		</where>
+	</update>
+	
+	<delete id="deleteEmployee" parameterType="string">
+		delete from employee
+		<where>
+			<if test ="_parameter!= null">
+				eid=#{_parameter}
+			</if>
+		</where>
+	</delete>
+	
+	
+</mapper>

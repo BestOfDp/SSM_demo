@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="/">
+	
+	<select id="selectAllStockin" parameterType="com.cn.helper.StockinPage" resultMap="ResultStockin">
+		select 
+		stockin.sid,
+		stockin.scode,
+		stockin.amount,
+		stockin.sprice,
+		stockin.stockindate,
+		stockin.customerid,
+		stockin.merchandiseid,
+		stockin.employeeid,
+		employee.ename,
+		customer.cname,
+		merchandise.mname
+		from ((stockin INNER JOIN employee ON 
+		stockin.employeeid = employee.eid) INNER JOIN  customer ON
+		stockin.customerid = customer.cid ) INNER JOIN  merchandise ON
+		stockin.merchandiseid = merchandise.mid  
+		
+		<where>
+			<if test="name != null and  name.length()>0">
+				customer.cname LIKE CONCAT('%',#{name},'%')
+			</if>
+			<if test="code != null and code.length()>0">
+				 and scode=#{code}
+			</if>
+		</where>
+	</select>
+	
+	<resultMap type="com.cn.domain.Stockin" id="ResultStockin">
+		<id property="sid" column="sid"></id>
+		<result property="scode" column="scode"></result>
+		<result property="amount" column="amount"></result>
+		<result property="sprice" column="sprice"></result>
+		<result property="stockindate" column="stockindate"></result>
+		<association property="employee" javaType="com.cn.domain.Employee">
+			<id property="eid" column="employeeid"></id>
+			<result property="ename" column="ename"></result>
+		</association>
+		<association property="customer" javaType="com.cn.domain.Customer">
+			<id property="cid" column="customerid"></id>
+			<result property="cname" column="cname"></result>
+		</association>
+		<association property="merchandise" javaType="com.cn.domain.Merchandise">
+			<id property="mid" column="merchandiseid"></id>
+			<result property="mname" column="mname"></result>
+		</association>
+	</resultMap>
+
+
+	<select id="countStockin" parameterType="com.cn.helper.StockinHelper" resultType="Integer">
+		select 
+			count(*)
+		from ((stockin INNER JOIN employee ON 
+		stockin.employeeid = employee.eid) INNER JOIN  customer ON
+		stockin.customerid = customer.cid ) INNER JOIN  merchandise ON
+		stockin.merchandiseid = merchandise.mid 
+		<where>
+			<if test="name != null and  name.length()>0">
+				customer.cname LIKE CONCAT('%',#{name},'%')
+			</if>
+			<if test="code != null and code.length()>0">
+				 and scode=#{code}
+			</if>
+		</where>
+	</select>
+	
+	<insert id="addStockin" parameterType="com.cn.VO.InsertIntoStockin">
+		insert into stockin(scode,amount,sprice,stockindate,customerid,merchandiseid,employeeid) 
+		values("${scode}","${amount}","${sprice}","${stockindate}","${customerid}","${merchandiseid}","${employeeid}")
+	</insert>
+	
+	
+	<select id="findStockinByCode"  parameterType="string" resultMap="ResultStockin">
+		select 
+		stockin.sid,
+		stockin.scode,
+		stockin.amount,
+		stockin.sprice,
+		stockin.stockindate,
+		stockin.customerid,
+		stockin.merchandiseid,
+		stockin.employeeid,
+		employee.ename,
+		customer.cname,
+		merchandise.mname
+		from ((stockin INNER JOIN employee ON 
+		stockin.employeeid = employee.eid) INNER JOIN  customer ON
+		stockin.customerid = customer.cid ) INNER JOIN  merchandise ON
+		stockin.merchandiseid = merchandise.mid 
+		<where>
+			<if test ="_parameter!= null">
+				scode=#{_parameter}
+			</if>
+		</where>
+	</select>
+	
+	<update id="updateStockin" parameterType="com.cn.VO.InsertIntoStockin">
+		update stockin
+		<set>
+			<if test="scode != null">scode=#{scode},</if>
+			<if test="amount != null">amount=#{amount},</if>
+			<if test="sprice != null">sprice=#{sprice},</if>
+			<if test="stockindate != null">stockindate=#{stockindate},</if>
+			<if test="customerid != null">customerid=#{customerid},</if>
+			<if test="merchandiseid != null">merchandiseid=#{merchandiseid},</if>
+			<if test="employeeid != null">employeeid=#{employeeid}</if>
+		</set>
+		<where>
+			<if test ="sid!= null">
+				sid=#{sid}
+			</if>
+		</where>
+	</update>
+	
+	<delete id="deleteStockin" parameterType="string">
+		delete from stockin 
+		<where>
+			<if test ="_parameter!= null">
+				scode=#{_parameter}
+			</if>
+		</where>
+	</delete>
+	
+</mapper>

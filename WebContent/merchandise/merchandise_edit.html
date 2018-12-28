@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+    <meta charset="UTF-8">
+    <title>后台管理系统</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../css/font.css">
+    <link rel="stylesheet" href="../css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/xadmin.js"></script>
+   
+  </head>
+  
+  <body>
+    <div class="x-body">
+        <form class="layui-form">
+        <input id="id" type="hidden" >
+        <input id="code" type="hidden" >
+          <div class="layui-form-item">
+              <label class="layui-form-label">
+                 	商品名
+              </label>
+              <div class="layui-input-inline">
+                  <input id="name"  type="text"  class="layui-input" 
+                  name="name" onfocus="checkValidate()" onblur="checkSucess()">
+                  <span id="sp1"></span>
+              </div>
+          </div>
+          
+          <div class="layui-form-item">
+              <label class="layui-form-label">
+                 	价格
+              </label>
+              <div class="layui-input-inline">
+                  <input id="price"  type="text"  class="layui-input" 
+                  name="price" onfocus="checkValidate()" onblur="checkSucess()">
+                  <span id="sp2"></span>
+              </div>
+          </div>
+          
+          <div class="layui-form-item">
+              <label for="L_repass" class="layui-form-label">
+              </label>
+              <button  class="layui-btn" type="button" onclick="update()">
+                 	 修改
+              </button>
+          </div>
+      </form>
+    </div>
+ <script>
+ 
+ function getQueryString(name) { 
+     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); 
+     var r = window.location.search.substr(1).match(reg); 
+     if (r != null) return unescape(r[2]); 
+     return null; 
+ } 
+ 
+	$.ajax({
+        url: '/lishui/findMerchandiseByid.do',
+        type: 'post',
+        data: {
+            'id': getQueryString("id")
+        },
+        success: function (info) {
+     	   var data = JSON.parse(info);
+     	   
+     	   var id = document.getElementById("id");
+     	   id.value = data.data[0].mid;
+     	   
+     	   var code = document.getElementById("code");
+     	   code.value = data.data[0].mcode;
+          
+           var name = document.getElementById("name");
+           name.value = data.data[0].mname;
+           
+           var password = document.getElementById("price");
+           price.value = data.data[0].mprice;
+           
+          
+        }
+    });
+	
+	function update(){
+		var result =  checkValidate();
+ 	   if(result==true){
+ 		   var id = document.getElementById("id");
+ 		   var code = document.getElementById("code");
+ 		   var name = document.getElementById("name");
+     	   var price = document.getElementById("price");
+     
+     	   $.ajax({
+                url: '/lishui/updateMerchandise.do',
+                type: 'post',
+                data: {
+                	'mid':id.value,
+                	'mcode': code.value,
+                    'mname': name.value,
+                    'mprice':price.value
+                },
+                success: function (info) {
+             	   var data = JSON.parse(info);
+                    if (data.code == 1) {
+                 	   layer.msg("发生错误");
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                }
+            });
+     	   
+ 	   }else{
+ 		   alert("字段必填");
+ 		   return false;
+ 	   }
+	}
+	
+	 function checkValidate(){
+	   		var $name=$("input[name='name']");
+	   		var value=$name.val();
+	   		
+	   		var $price=$("input[name='price']");
+	   		var value1=$price.val();
+	   	
+	   		if(value==""||value.length>10){
+	   			$("#sp1").html("<font color = 'red'>请输入10位以下字符</font>")
+	   			return false;
+	   		}
+	   		if(value1==""||value1.length>10){
+	   			$("#sp2").html("<font color = 'red'>请输入10位以下字符</font>")
+	   			return false;
+	   		}
+	   		return true;
+	   		
+	   	}
+	   	
+	   	function checkSucess(){
+	   		
+	   		var $name=$("input[name='name']");
+	   		var value=$name.val();
+	   		
+	   		var $price=$("input[name='price']");
+	   		var value1=$price.val();
+	   		
+	   		if(value!=""&&value.length<10){
+	   			$("#sp1").html("<font color = 'green'>满足条件</font>")
+	   	    }else{
+	   	    	$("#sp1").html("<font color = 'red'>请输入10位以下字符</font>")
+	   			return false;
+	   	    }
+	   		
+	   		if(value1!=""&&value1.length<10){
+	   			$("#sp2").html("<font color = 'green'>满足条件</font>")
+	   	    }else{
+	   	    	$("#sp2").html("<font color = 'red'>请输入10位以下字符</font>")
+	   			return false;
+	   	    }
+	   		
+	   	}
+ </script>
+  </body>
+
+</html>

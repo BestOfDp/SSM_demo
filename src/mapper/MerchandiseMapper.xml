@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="/">
+	
+	<select id="selectAllMerchandise" parameterType="com.cn.helper.MerchandisePage" resultType="com.cn.domain.Merchandise">
+		select * from merchandise
+		<where>
+			<if test="name != null and  name.length()>0">
+				 mname LIKE CONCAT('%',#{name},'%')
+			</if>
+			<if test="code != null and code.length()>0">
+				 and mcode=#{code}
+			</if>
+		</where>
+		limit #{page},#{limit}
+	</select>
+	
+	<select id="findByMerchandiseId"  parameterType="string" resultType="com.cn.domain.Merchandise">
+		select * from merchandise
+		<where>
+			<if test ="_parameter!= null">
+				mid=#{_parameter}
+			</if>
+		</where>
+	</select>
+	
+	<select id="countMerchandise" parameterType="com.cn.domain.Merchandise" resultType="Integer">
+		select count(*) from merchandise
+		<where>
+			<if test="mname != null and  mname.length()>0">
+				 mname LIKE CONCAT('%',#{mname},'%')
+			</if>
+			<if test="mcode != null and mcode.length()>0">
+				 and mcode=#{mcode}
+			</if>
+		</where>
+	</select>
+	
+	<insert id="addMerchandise" parameterType="com.cn.domain.Merchandise">
+		insert into merchandise(mcode,mname,mprice) values("${mcode}","${mname}","${mprice}")
+	</insert>
+	
+	<update id="updateMerchandise" parameterType="com.cn.domain.Merchandise">
+		update merchandise
+		<set>
+			<if test="mcode != null">mcode=#{mcode},</if>
+			<if test="mname != null">mname=#{mname},</if>
+			<if test="mprice != null">mprice=#{mprice}</if>
+		</set>
+		<where>
+			<if test ="mid!= null">
+				mid=#{mid}
+			</if>
+		</where>
+	</update>
+	
+	<delete id="deleteMerchandise" parameterType="string">
+		delete from merchandise
+		<where>
+			<if test ="_parameter!= null">
+				mid=#{_parameter}
+			</if>
+		</where>
+	</delete>
+	
+</mapper>

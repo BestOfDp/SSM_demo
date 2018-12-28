@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd	
+	http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd	
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd	
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd	
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd		
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd		
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+	
+	<!-- json解决中文乱码 -->
+   <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" >  
+     <property name="messageConverters">     
+         <list>     
+            <bean class = "org.springframework.http.converter.StringHttpMessageConverter">     
+                <property name = "supportedMediaTypes">  
+                      <list>  
+                          <value>text/plain;charset=UTF-8</value>     
+                     </list>     
+                </property>     
+             </bean>     
+         </list>     
+     </property>    
+   </bean> 
+
+	<!-- 配置连接数据库的  -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+			<property name="location" value="classpath:jdbc.properties"></property>
+	</bean>
+	<!-- 配置文件里面的内容 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+	<!-- 获取jdbc.properties配置内容 -->
+		<property name="driverClassName" value="${jdbc.driver}"></property>
+		<property name="url" value="${jdbc.url}"></property>
+		<property name="username" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+	</bean>
+	
+	<!-- 扫描器的配置    是通过注解来引用 spring创建的对象  -->
+	<context:component-scan base-package="com.cn"/>
+	
+<!-- 	对注解进行配置   @Controller  @Service  @ Repository @Autowire 。。。。。 -->
+	<mvc:annotation-driven/>
+	
+	<!--  -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<!-- 自动扫描 mapper里面的xxx.xml文件  -->
+		<property name="mapperLocations" value="classpath:mapper/*.xml"></property>
+	</bean>
+	
+	<!-- 创建工厂有了 但是 我们是为了在业务层去引用 工厂创建的对象  -->
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">	
+		<constructor-arg  ref="sqlSessionFactory"></constructor-arg>	
+	</bean>
+	
+
+	
+<!-- 	jsp页面的配置  -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"/>
+		<property name="suffix" value=".jsp"/>
+		<!-- 这两句的配置 表示找到/WEB-INF/jsp/ 所有的以jsp为结尾的 文件  -->
+	</bean>
+	
+	<!-- 配置事务 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">	
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+		<!-- propagation="REQUIRED"  加入的当前的事务如果不在一个事务里面就要另起一个新的事务 -->
+			<tx:method name="delete*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception"/>
+			<tx:method name="insert*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception"/>
+			<tx:method name="update*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception"/>
+			<tx:method name="save*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception"/>
+			<tx:method name="*" propagation="SUPPORTS" read-only="true"/>
+		</tx:attributes>
+	</tx:advice>
+
+	<!-- 配置aop    面向切面编程    一个完整的项目  在不改变原有的代码  如何添加新的功能    -->
+	<aop:config>
+		<!-- 配置切点 -->
+		<aop:pointcut expression="execution(* service..*.*(..))" id="allServiceMethods"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="allServiceMethods"/>
+	</aop:config>
+	
+	
+	
+	
+	
+
+</beans>
